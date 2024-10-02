@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2FEA55EF2CAC872D000990F0 /* Gabber in Frameworks */ = {isa = PBXBuildFile; productRef = 2FEA55EE2CAC872D000990F0 /* Gabber */; };
 		2FF25CC52CAB316800B5B98D /* GabberExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FF25CC42CAB316800B5B98D /* GabberExampleApp.swift */; };
 		2FF25CC72CAB316800B5B98D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FF25CC62CAB316800B5B98D /* ContentView.swift */; };
 		2FF25CC92CAB316A00B5B98D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2FF25CC82CAB316A00B5B98D /* Assets.xcassets */; };
@@ -14,6 +15,7 @@
 		2FF25CD62CAB316A00B5B98D /* GabberExampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FF25CD52CAB316A00B5B98D /* GabberExampleTests.swift */; };
 		2FF25CE02CAB316A00B5B98D /* GabberExampleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FF25CDF2CAB316A00B5B98D /* GabberExampleUITests.swift */; };
 		2FF25CE22CAB316A00B5B98D /* GabberExampleUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FF25CE12CAB316A00B5B98D /* GabberExampleUITestsLaunchTests.swift */; };
+		2FF25CEF2CAB3B7100B5B98D /* GabberViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FF25CEE2CAB3B7100B5B98D /* GabberViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,6 +36,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2FDA7DE82CAC83D6006CAC77 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		2FF25CC12CAB316800B5B98D /* GabberExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GabberExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2FF25CC42CAB316800B5B98D /* GabberExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GabberExampleApp.swift; sourceTree = "<group>"; };
 		2FF25CC62CAB316800B5B98D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -44,6 +47,7 @@
 		2FF25CDB2CAB316A00B5B98D /* GabberExampleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GabberExampleUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2FF25CDF2CAB316A00B5B98D /* GabberExampleUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GabberExampleUITests.swift; sourceTree = "<group>"; };
 		2FF25CE12CAB316A00B5B98D /* GabberExampleUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GabberExampleUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		2FF25CEE2CAB3B7100B5B98D /* GabberViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GabberViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +55,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2FEA55EF2CAC872D000990F0 /* Gabber in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 				2FF25CD42CAB316A00B5B98D /* GabberExampleTests */,
 				2FF25CDE2CAB316A00B5B98D /* GabberExampleUITests */,
 				2FF25CC22CAB316800B5B98D /* Products */,
+				2FF25CF12CAB3F7800B5B98D /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -94,8 +100,10 @@
 		2FF25CC32CAB316800B5B98D /* GabberExample */ = {
 			isa = PBXGroup;
 			children = (
+				2FDA7DE82CAC83D6006CAC77 /* Info.plist */,
 				2FF25CC42CAB316800B5B98D /* GabberExampleApp.swift */,
 				2FF25CC62CAB316800B5B98D /* ContentView.swift */,
+				2FF25CEE2CAB3B7100B5B98D /* GabberViewModel.swift */,
 				2FF25CC82CAB316A00B5B98D /* Assets.xcassets */,
 				2FF25CCA2CAB316A00B5B98D /* Preview Content */,
 			);
@@ -127,6 +135,13 @@
 			path = GabberExampleUITests;
 			sourceTree = "<group>";
 		};
+		2FF25CF12CAB3F7800B5B98D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -143,6 +158,9 @@
 			dependencies = (
 			);
 			name = GabberExample;
+			packageProductDependencies = (
+				2FEA55EE2CAC872D000990F0 /* Gabber */,
+			);
 			productName = GabberExample;
 			productReference = 2FF25CC12CAB316800B5B98D /* GabberExample.app */;
 			productType = "com.apple.product-type.application";
@@ -215,6 +233,9 @@
 				Base,
 			);
 			mainGroup = 2FF25CB82CAB316800B5B98D;
+			packageReferences = (
+				2FEA55ED2CAC8709000990F0 /* XCLocalSwiftPackageReference "../sdk-swift" */,
+			);
 			productRefGroup = 2FF25CC22CAB316800B5B98D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -259,6 +280,7 @@
 			files = (
 				2FF25CC72CAB316800B5B98D /* ContentView.swift in Sources */,
 				2FF25CC52CAB316800B5B98D /* GabberExampleApp.swift in Sources */,
+				2FF25CEF2CAB3B7100B5B98D /* GabberViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -424,6 +446,8 @@
 				DEVELOPMENT_ASSET_PATHS = "\"GabberExample/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = GabberExample/Info.plist;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need access to the microphone for voice interactions.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -452,6 +476,8 @@
 				DEVELOPMENT_ASSET_PATHS = "\"GabberExample/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = GabberExample/Info.plist;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need access to the microphone for voice interactions.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -582,6 +608,21 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		2FEA55ED2CAC8709000990F0 /* XCLocalSwiftPackageReference "../sdk-swift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../sdk-swift";
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2FEA55EE2CAC872D000990F0 /* Gabber */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2FEA55ED2CAC8709000990F0 /* XCLocalSwiftPackageReference "../sdk-swift" */;
+			productName = Gabber;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2FF25CB92CAB316800B5B98D /* Project object */;
 }
