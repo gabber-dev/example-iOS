@@ -1,4 +1,5 @@
 import SwiftUI
+import Gabber
 
 struct ContentView: View {
     @StateObject private var viewModel = GabberViewModel()
@@ -14,24 +15,40 @@ struct ContentView: View {
                 chatView
             }
         }
-        .alert(item: Binding<AlertItem?>(
-            get: { viewModel.error.map { AlertItem(message: $0) } },
-            set: { _ in viewModel.error = nil }
-        )) { alertItem in
-            Alert(title: Text("Error"), message: Text(alertItem.message))
-        }
     }
     
     private var connectionView: some View {
         VStack {
-            if viewModel.isLoading {
-                ProgressView("Fetching connection details...")
-            } else {
-                Button("Connect") {
-                    print("Connect button pressed")
-                    viewModel.fetchConnectionDetails()
-                }
+            TextField("Enter text here", text: $viewModel.prompt)
                 .padding()
+                .textFieldStyle(RoundedBorderTextFieldStyle()) // Styling for the text field
+            Text("Select Voice:")
+            ScrollView(.vertical) {
+                VStack {
+                    ForEach(viewModel.voices, id: \.id) { voice in
+                        VoiceRow(voice: voice, isSelected: viewModel.selectedVoiceId == voice.id) {
+                            viewModel.selectedVoiceId = voice.id // Update selected voice
+                            print("Selected voice: \(voice.name)")
+                        }
+                    }
+                }
+            }
+            Button("Connect") {
+                Task {
+                    do {
+                        try await viewModel.connect()
+                    } catch {
+                        print("Connection failed \(error)")
+                    }
+                }
+            }.frame(height: 100)
+        }.onAppear {
+            Task {
+                do {
+                    try await viewModel.fetchVoices()
+                } catch {
+                    AlertItem(message: "Error fetching voices")
+                }
             }
         }
     }
@@ -47,7 +64,7 @@ struct ContentView: View {
                         Text("You: ")
                             .fontWeight(.bold)
                     }
-                    Text(message.text)
+                    Text(message.text ?? "")
                 }
             }
             
@@ -57,7 +74,14 @@ struct ContentView: View {
                 
                 Button("Send") {
                     print("Send button pressed")
-                    viewModel.sendMessage()
+                    Task {
+                        do {
+                            try await viewModel.sendMessage()
+                        } catch {
+                            print("Error sending message")
+                        }
+                    }
+                    
                 }
             }
             .padding()
@@ -65,7 +89,13 @@ struct ContentView: View {
             HStack {
                 Button(viewModel.microphoneEnabled ? "Mute" : "Unmute") {
                     print("\(viewModel.microphoneEnabled ? "Mute" : "Unmute") button pressed")
-                    viewModel.toggleMicrophone()
+                    Task {
+                        do {
+                            try await viewModel.toggleMicrophone()
+                        } catch {
+                            print("Error toggling microphone")
+                        }
+                    }
                 }
                 
                 Button("Disconnect") {
@@ -79,8 +109,25 @@ struct ContentView: View {
                 Text("Remaining time: \(Int(remainingSeconds))s")
             }
             
-            Text("Agent state: \(viewModel.agentState.description)")
+            Text("Agent state: \(viewModel.agentState)")
         }
+    }
+}
+
+struct VoiceRow: View {
+    let voice: Voice
+    let isSelected: Bool
+    let onSelect: () -> Void
+
+    var body: some View {
+        Text(voice.name)
+            .padding()
+            .background(isSelected ? Color.green : Color.blue) // Highlight selected voice
+            .foregroundColor(.white)
+            .cornerRadius(10)
+            .onTapGesture {
+                onSelect() // Call the selection closure when tapped
+            }
     }
 }
 

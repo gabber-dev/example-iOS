@@ -3,128 +3,92 @@ import Gabber
 import Combine
 import AVFoundation
 
-class GabberViewModel: ObservableObject, GabberDelegate {
+class GabberViewModel: ObservableObject, SessionDelegate {
     @Published var messages: [SessionMessage] = []
     @Published var inputMessage: String = ""
     @Published var connectionState: ConnectionState = .notConnected
     @Published var agentState: AgentState = .warmup
     @Published var isLoading: Bool = false
-    @Published var error: String?
     @Published var microphoneEnabled: Bool = false
     @Published var remainingSeconds: Float?
     @Published var agentVolume: (bands: [Float], volume: Float) = ([], 0)
     @Published var userVolume: (bands: [Float], volume: Float) = ([], 0)
+    @Published var prompt: String = "You are a woman named Hilary working in the library."
     
-    private var gabber: Gabber?
-    private var cancellables: Set<AnyCancellable> = []
+    @Published var voices: [Voice] = []
+    @Published var selectedVoiceId: String? = nil
     
-    func fetchConnectionDetails() {
-        checkMicrophonePermission()
-        isLoading = true
-        error = nil
-        print("Fetching connection details...")
+    private var llmId = "21892bb9-9809-4b6f-8c3e-e40093069f04"
+    
+    
+    private lazy var session: Session = {
+        return Session(tokenGenerator: self.generateToken, delegate: self)
+    }()
+    
+    private lazy var api: Api = {
+        return Api(tokenGenerator: self.generateToken)
+    }()
+    
+    private func generateToken() async throws -> String {
+        print("Generating token")
         
-        guard let url = URL(string: "http://localhost:3000/start-session") else {
-            print("Invalid server URL")
-            isLoading = false
-            return
+        // Define the URL for the token endpoint
+        guard let url = URL(string: "http://localhost:4000/token") else {
+            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])
         }
         
+        // Prepare the URL request
         var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpMethod = "GET"
         
-        let requestBody: [String: Any] = ["userId": "user123"]
-        request.httpBody = try? JSONSerialization.data(withJSONObject: requestBody, options: [])
-        
-        URLSession.shared.dataTask(with: request) { data, response, error in
+        do {
+            // Perform the network request
+            let (data, _) = try await URLSession.shared.data(for: request)
+            
+            // Try to parse the JSON response
+            if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let token = json["token"] as? String {
+                print("Generated token \(token)")
+                return token
+            } else {
+                throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Token not found in response"])
+            }
+            
+        } catch {
+            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Network error: \(error.localizedDescription)"])
+        }
+    }
+    
+    func fetchVoices() async throws {
+        print("Fetching voices")
+        let res = try await api.getVoices().values
+        if voices.count >= 0 {
             DispatchQueue.main.async {
-                self.isLoading = false
+                self.voices = res
+                self.selectedVoiceId = res[0].id  // Set selectedVoiceID on the main thread
             }
-            
-            if let error = error {
-                print("Error fetching session data: \(error)")
-                DispatchQueue.main.async {
-                    self.error = "Failed to start session"
-                }
-                return
-            }
-            
-            guard let data = data else {
-                print("No data received")
-                return
-            }
-            
-            do {
-                if let jsonResponse = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
-                   let sessionUrl = jsonResponse["url"] as? String,
-                   let sessionToken = jsonResponse["token"] as? String {
-                    print("Session URL: \(sessionUrl)")
-                    print("Session Token: \(sessionToken.prefix(10))...")
-                    
-                    let connectionDetails = ConnectionDetails(url: sessionUrl, token: sessionToken)
-                    DispatchQueue.main.async {
-                        self.connect(connectionDetails: connectionDetails)
-                    }
-                } else {
-                    print("Invalid JSON response")
-                }
-            } catch {
-                print("Error parsing JSON: \(error)")
-            }
-        }.resume()
+        }
+        print("Fetched voices \(voices)")
     }
     
-    func connect(connectionDetails: ConnectionDetails) {
-        print("Attempting to connect with details: \(connectionDetails)")
-        gabber = Gabber(connectionDetails: connectionDetails, delegate: self)
-        
-        Task {
-            do {
-                print("Calling gabber.connect()")
-                try await gabber?.connect()
-                print("Connection successful")
-                DispatchQueue.main.async {
-                    self.connectionState = .connected
-                    self.checkGabberState()
-                }
-            } catch {
-                print("Error while trying to connect to the session: \(error)")
-                DispatchQueue.main.async {
-                    self.error = "Connection error: \(error.localizedDescription)"
-                    self.connectionState = .notConnected
-                }
-            }
-        }
+    func connect() async throws {
+        checkMicrophonePermission()
+        let payload = Components.Schemas.SessionStartRequest.Case1Payload(history: [HistoryMessage(content: prompt, role: .system)], voice_override: selectedVoiceId, llm: llmId)
+        try await session.connect(opts: .sessionStartRequest(req: .case1(payload)))
     }
     
-    func sendMessage() {
-        guard let gabber = gabber, !inputMessage.isEmpty else {
-            print("Message is empty or Gabber is nil")
-            return
-        }
-        
-        Task {
-            do {
-                print("Sending message: \(inputMessage)")
-                try await gabber.sendChat(message: inputMessage)
-                DispatchQueue.main.async {
-                    self.inputMessage = ""
-                }
-            } catch {
-                print("Error sending message: \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    self.error = "Failed to send message: \(error.localizedDescription)"
-                }
-            }
-        }
+    func sendMessage() async throws {
+        try await session.sendChat(message: inputMessage)
+        DispatchQueue.main.async {
+            self.inputMessage = ""
+        }x
     }
     
     func disconnect() {
         print("Disconnecting from session...")
         Task {
             do {
-                try await gabber?.disconnect()
+                try await session.disconnect()
                 print("Disconnected from session")
             } catch {
                 print("Error disconnecting: \(error.localizedDescription)")
@@ -132,36 +96,17 @@ class GabberViewModel: ObservableObject, GabberDelegate {
         }
     }
     
-    func toggleMicrophone() {
-        guard let gabber = gabber else {
-            print("Gabber instance is nil")
-            return
-        }
-        
-        Task {
-            do {
-                print("Toggling microphone. Current state: \(microphoneEnabled)")
-                try await gabber.setMicrophone(enabled: !microphoneEnabled)
-            } catch {
-                print("Error toggling microphone: \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    self.error = "Failed to toggle microphone: \(error.localizedDescription)"
-                }
-            }
-        }
+    func toggleMicrophone() async throws {
+        try await session.setMicrophone(enabled: !microphoneEnabled)
     }
     
     func checkGabberState() {
-        guard let gabber = gabber else {
-            print("Gabber instance is nil")
-            return
-        }
         print("Gabber state checked")
         print("Connection state: \(connectionState)")
         print("Agent state: \(agentState)")
         print("Microphone enabled: \(microphoneEnabled)")
     }
-
+    
     // MARK: - GabberDelegate methods
     
     func ConnectionStateChanged(state: ConnectionState) {
@@ -215,9 +160,6 @@ class GabberViewModel: ObservableObject, GabberDelegate {
     
     func AgentError(msg: String) {
         print("AgentError: \(msg)")
-        DispatchQueue.main.async {
-            self.error = "Agent Error: \(msg)"
-        }
     }
     
     func checkMicrophonePermission() {
