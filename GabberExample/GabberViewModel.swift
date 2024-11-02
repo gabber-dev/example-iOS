@@ -4,7 +4,7 @@ import Combine
 import AVFoundation
 
 class GabberViewModel: ObservableObject, SessionDelegate {
-    @Published var messages: [SessionMessage] = []
+    @Published var messages: [SessionTranscription] = []
     @Published var inputMessage: String = ""
     @Published var connectionState: ConnectionState = .notConnected
     @Published var agentState: AgentState = .warmup
@@ -81,7 +81,7 @@ class GabberViewModel: ObservableObject, SessionDelegate {
         try await session.sendChat(message: inputMessage)
         DispatchQueue.main.async {
             self.inputMessage = ""
-        }x
+        }
     }
     
     func disconnect() {
@@ -116,7 +116,7 @@ class GabberViewModel: ObservableObject, SessionDelegate {
         }
     }
     
-    func MessagesChanged(messages: [SessionMessage]) {
+    func MessagesChanged(messages: [SessionTranscription]) {
         print("MessagesChanged: \(messages)")
         DispatchQueue.main.async {
             self.messages = messages

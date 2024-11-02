@@ -55,7 +55,7 @@ struct ContentView: View {
     
     private var chatView: some View {
         VStack {
-            List(viewModel.messages, id: \.id) { message in
+            List(viewModel.messages, id: \.uniqueId) { message in
                 HStack {
                     if message.agent {
                         Text("Agent: ")
@@ -64,7 +64,7 @@ struct ContentView: View {
                         Text("You: ")
                             .fontWeight(.bold)
                     }
-                    Text(message.text ?? "")
+                    Text(message.text)
                 }
             }
             

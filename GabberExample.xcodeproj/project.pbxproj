@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -15,8 +15,7 @@
 		2FF25CE02CAB316A00B5B98D /* GabberExampleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FF25CDF2CAB316A00B5B98D /* GabberExampleUITests.swift */; };
 		2FF25CE22CAB316A00B5B98D /* GabberExampleUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FF25CE12CAB316A00B5B98D /* GabberExampleUITestsLaunchTests.swift */; };
 		2FF25CEF2CAB3B7100B5B98D /* GabberViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FF25CEE2CAB3B7100B5B98D /* GabberViewModel.swift */; };
-		E079E2242CC5B2C5001B9DC5 /* Gabber in Frameworks */ = {isa = PBXBuildFile; productRef = E079E2232CC5B2C5001B9DC5 /* Gabber */; };
-		E079E2262CC5B2EA001B9DC5 /* Gabber in Frameworks */ = {isa = PBXBuildFile; productRef = E079E2252CC5B2EA001B9DC5 /* Gabber */; };
+		E0BEAC9A2CD6F1E200B87C8E /* Gabber in Frameworks */ = {isa = PBXBuildFile; productRef = E0BEAC992CD6F1E200B87C8E /* Gabber */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,8 +55,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E079E2242CC5B2C5001B9DC5 /* Gabber in Frameworks */,
-				E079E2262CC5B2EA001B9DC5 /* Gabber in Frameworks */,
+				E0BEAC9A2CD6F1E200B87C8E /* Gabber in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -161,8 +159,7 @@
 			);
 			name = GabberExample;
 			packageProductDependencies = (
-				E079E2232CC5B2C5001B9DC5 /* Gabber */,
-				E079E2252CC5B2EA001B9DC5 /* Gabber */,
+				E0BEAC992CD6F1E200B87C8E /* Gabber */,
 			);
 			productName = GabberExample;
 			productReference = 2FF25CC12CAB316800B5B98D /* GabberExample.app */;
@@ -237,7 +234,7 @@
 			);
 			mainGroup = 2FF25CB82CAB316800B5B98D;
 			packageReferences = (
-				E079E2222CC5AFD1001B9DC5 /* XCLocalSwiftPackageReference "../Gabber" */,
+				E0BEAC982CD6F0C800B87C8E /* XCRemoteSwiftPackageReference "sdk-swift" */,
 			);
 			productRefGroup = 2FF25CC22CAB316800B5B98D /* Products */;
 			projectDirPath = "";
@@ -612,20 +609,21 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		E079E2222CC5AFD1001B9DC5 /* XCLocalSwiftPackageReference "../Gabber" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../Gabber;
+/* Begin XCRemoteSwiftPackageReference section */
+		E0BEAC982CD6F0C800B87C8E /* XCRemoteSwiftPackageReference "sdk-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/gabber-dev/sdk-swift.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
 		};
-/* End XCLocalSwiftPackageReference section */
+/* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		E079E2232CC5B2C5001B9DC5 /* Gabber */ = {
+		E0BEAC992CD6F1E200B87C8E /* Gabber */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = Gabber;
-		};
-		E079E2252CC5B2EA001B9DC5 /* Gabber */ = {
-			isa = XCSwiftPackageProductDependency;
+			package = E0BEAC982CD6F0C800B87C8E /* XCRemoteSwiftPackageReference "sdk-swift" */;
 			productName = Gabber;
 		};
 /* End XCSwiftPackageProductDependency section */
