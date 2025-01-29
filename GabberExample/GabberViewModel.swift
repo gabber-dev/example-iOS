@@ -3,11 +3,11 @@ import Gabber
 import Combine
 import AVFoundation
 
-class GabberViewModel: ObservableObject, SessionDelegate {
-    @Published var messages: [SessionTranscription] = []
+class GabberViewModel: ObservableObject, RealtimeSessionEngineDelegate {
+    @Published var messages: [Components.Schemas.SDKSessionTranscription] = []
     @Published var inputMessage: String = ""
-    @Published var connectionState: ConnectionState = .notConnected
-    @Published var agentState: AgentState = .warmup
+    @Published var connectionState: Components.Schemas.SDKConnectionState = .not_connected
+    @Published var agentState: Components.Schemas.SDKAgentState = .warmup
     @Published var isLoading: Bool = false
     @Published var microphoneEnabled: Bool = false
     @Published var remainingSeconds: Float?
@@ -15,22 +15,23 @@ class GabberViewModel: ObservableObject, SessionDelegate {
     @Published var userVolume: (bands: [Float], volume: Float) = ([], 0)
     @Published var prompt: String = "You are a woman named Hilary working in the library."
     
-    @Published var voices: [Voice] = []
+    @Published var voices: [Components.Schemas.Voice] = []
     @Published var selectedVoiceId: String? = nil
+    
+    private var token: String? = nil
     
     private var llmId = "21892bb9-9809-4b6f-8c3e-e40093069f04"
     
     
-    private lazy var session: Session = {
-        return Session(tokenGenerator: self.generateToken, delegate: self)
-    }()
-    
-    private lazy var api: Api = {
-        return Api(tokenGenerator: self.generateToken)
+    private lazy var session: RealtimeSessionEngine = {
+        return RealtimeSessionEngine(delegate: self)
     }()
     
     private func generateToken() async throws -> String {
         print("Generating token")
+        if let t = self.token {
+            return t
+        }
         
         // Define the URL for the token endpoint
         guard let url = URL(string: "http://localhost:4000/token") else {
@@ -49,6 +50,7 @@ class GabberViewModel: ObservableObject, SessionDelegate {
             if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                let token = json["token"] as? String {
                 print("Generated token \(token)")
+                self.token = token
                 return token
             } else {
                 throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Token not found in response"])
@@ -61,20 +63,24 @@ class GabberViewModel: ObservableObject, SessionDelegate {
     
     func fetchVoices() async throws {
         print("Fetching voices")
-        let res = try await api.getVoices().values
+        let token = try await generateToken()
+        let api = Api.client(token: token)
+        let voices = try await api.listVoices().ok.body.json.values
         if voices.count >= 0 {
             DispatchQueue.main.async {
-                self.voices = res
-                self.selectedVoiceId = res[0].id  // Set selectedVoiceID on the main thread
+                self.voices = voices
+                self.selectedVoiceId = voices[0].id  // Set selectedVoiceID on the main thread
             }
         }
-        print("Fetched voices \(voices)")
     }
     
     func connect() async throws {
         checkMicrophonePermission()
-        let payload = Components.Schemas.SessionStartRequest.Case1Payload(history: [HistoryMessage(content: prompt, role: .system)], voice_override: selectedVoiceId, llm: llmId)
-        try await session.connect(opts: .sessionStartRequest(req: .case1(payload)))
+        let token = try await generateToken()
+        let api = Api.client(token: token)
+        let memoryContext = try await api.createContext(body: .json(.init(persona: nil, scenario: nil, messages: [.init(role: .system, content: prompt)]))).ok.body.json
+        let config = Components.Schemas.RealtimeSessionConfigCreate(general: .init(save_messages: true), input: .init(interruptable: true, parallel_listening: true), generative: .init(llm: llmId, voice_override: selectedVoiceId, context: memoryContext.id), output: .init(stream_transcript: true, speech_synthesis_enabled: true))
+        try await session.connect(opts: .case2(.init(token: token, config: config)))
     }
     
     func sendMessage() async throws {
@@ -109,14 +115,14 @@ class GabberViewModel: ObservableObject, SessionDelegate {
     
     // MARK: - GabberDelegate methods
     
-    func ConnectionStateChanged(state: ConnectionState) {
+    func ConnectionStateChanged(state: Components.Schemas.SDKConnectionState) {
         print("ConnectionStateChanged: \(state)")
         DispatchQueue.main.async {
             self.connectionState = state
         }
     }
     
-    func MessagesChanged(messages: [SessionTranscription]) {
+    func MessagesChanged(messages: [Components.Schemas.SDKSessionTranscription]) {
         print("MessagesChanged: \(messages)")
         DispatchQueue.main.async {
             self.messages = messages
@@ -130,7 +136,7 @@ class GabberViewModel: ObservableObject, SessionDelegate {
         }
     }
     
-    func AgentStateChanged(_ state: AgentState) {
+    func AgentStateChanged(_ state: Components.Schemas.SDKAgentState) {
         print("AgentStateChanged: \(state)")
         DispatchQueue.main.async {
             self.agentState = state

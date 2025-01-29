@@ -1,5 +1,5 @@
 {
-  "originHash" : "4f0f101060e9e45561f083a729060ef0ab814b2bae722a0fb8e44df6a4e8563a",
+  "originHash" : "e7860617d906bfe369819cbe5f1249fe5a0036b638e4ee29148dc9a82ee62556",
   "pins" : [
     {
       "identity" : "client-sdk-swift",
@@ -16,7 +16,7 @@
       "location" : "https://github.com/gabber-dev/sdk-swift.git",
       "state" : {
         "branch" : "main",
-        "revision" : "9569e7a793310ba66e620cbd7a885a4a5e9962ae"
+        "revision" : "808f7d4ce5fd3bb27b091bd5f236461d1ac8fb8b"
       }
     },
     {

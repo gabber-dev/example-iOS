@@ -7,9 +7,9 @@ struct ContentView: View {
     var body: some View {
         VStack {
             switch viewModel.connectionState {
-            case .notConnected:
+            case .not_connected:
                 connectionView
-            case .connecting, .waitingForAgent:
+            case .connecting, .waiting_for_agent:
                 connectionView
             case .connected:
                 chatView
@@ -55,7 +55,7 @@ struct ContentView: View {
     
     private var chatView: some View {
         VStack {
-            List(viewModel.messages, id: \.uniqueId) { message in
+            List(viewModel.messages, id: \.id) { message in
                 HStack {
                     if message.agent {
                         Text("Agent: ")
@@ -115,7 +115,7 @@ struct ContentView: View {
 }
 
 struct VoiceRow: View {
-    let voice: Voice
+    let voice: Components.Schemas.Voice
     let isSelected: Bool
     let onSelect: () -> Void
 
